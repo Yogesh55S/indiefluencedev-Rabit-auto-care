@@ -1,8 +1,10 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
-import UserSidebar from '../../../components/UserSidebar';
 import { useRouter } from 'next/navigation';
+import UserNavbar from '../../../components/UserNavbar';
+import '../../../app/globals.css';
 
 export default function UserProductsPage() {
   const [products, setProducts] = useState([]);
@@ -16,11 +18,7 @@ export default function UserProductsPage() {
 
   const fetchProducts = async () => {
     let query = supabase.from('products').select('*');
-    if (sort === 'asc') {
-      query = query.order('price', { ascending: true });
-    } else {
-      query = query.order('price', { ascending: false });
-    }
+    query = query.order('price', { ascending: sort === 'asc' });
     const { data, error } = await query;
     if (!error) setProducts(data);
   };
@@ -30,10 +28,10 @@ export default function UserProductsPage() {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <UserSidebar />
+    <div >
+      <UserNavbar />
 
-      <main className="flex-1 ml-0 md:ml-60 p-6">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Explore Products</h1>
 
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -58,7 +56,7 @@ export default function UserProductsPage() {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300"
+              className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition duration-300"
             >
               {product.image && (
                 <img
@@ -68,11 +66,11 @@ export default function UserProductsPage() {
                 />
               )}
               <div className="p-4">
-                <h3 className="text-lg font-bold text-gray-800">{product.name}</h3>
-                <p className="text-green-600 font-semibold">₹{product.price}</p>
-                <p className="text-gray-600 text-sm mt-1">{product.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+                <p className="text-green-600 font-bold mt-1">₹{product.price}</p>
+                <p className="text-gray-600 text-sm mt-2 line-clamp-2">{product.description}</p>
                 <button
-                  className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                  className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
                   onClick={() => router.push(`/user/products/${product.id}`)}
                 >
                   View Details

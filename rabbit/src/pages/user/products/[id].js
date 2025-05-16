@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabaseClient';
-import UserSidebar from '@/components/UserSidebar';
+import Navbar from '../../../components/UserNavbar';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 export default function ProductDetailPage({ params }) {
@@ -130,10 +130,11 @@ export default function ProductDetailPage({ params }) {
 
   if (!product) return <div className="p-6">Loading product details...</div>;
 
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-      <UserSidebar />
+  return (<>
+ 
+  <div >
 
+     <Navbar />
       <main className="flex-1 ml-0 md:ml-60 p-6">
         <button
           className="mb-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
@@ -246,5 +247,6 @@ export default function ProductDetailPage({ params }) {
         )}
       </main>
     </div>
+     </>
   );
 }

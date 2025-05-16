@@ -1,8 +1,10 @@
+// app/checkout/page.jsx
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 import "../../app/globals.css";
+
 export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,7 +55,6 @@ export default function CheckoutPage() {
 
     setLoading(true);
 
-    // Prepare items JSON for the order
     const items = [
       {
         product_id: product.id,
@@ -65,22 +66,25 @@ export default function CheckoutPage() {
 
     const totalPrice = product.price * quantity;
 
-    const { error } = await supabase.from('orders').insert([
-      {
-        user_id: userId,
-        items,
-        total: totalPrice,
-        shipping_info: shipping,
-      },
-    ]);
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([
+        {
+          user_id: userId,
+          items,
+          total: totalPrice,
+          shipping_info: shipping,
+        },
+      ])
+      .select()
+      .single();
 
     setLoading(false);
 
     if (error) {
       alert('Failed to place order: ' + error.message);
     } else {
-      alert('Order placed successfully!');
-      router.push('/user/orders'); // Redirect to order history page
+      router.push(`/user/check?id=${data.id}`);
     }
   };
 
@@ -98,72 +102,19 @@ export default function CheckoutPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block font-medium">Name</label>
-          <input
-            name="name"
-            value={shipping.name}
-            onChange={handleChange}
-            required
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Address</label>
-          <textarea
-            name="address"
-            value={shipping.address}
-            onChange={handleChange}
-            required
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">City</label>
-          <input
-            name="city"
-            value={shipping.city}
-            onChange={handleChange}
-            required
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">State</label>
-          <input
-            name="state"
-            value={shipping.state}
-            onChange={handleChange}
-            required
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Postal Code</label>
-          <input
-            name="postalCode"
-            value={shipping.postalCode}
-            onChange={handleChange}
-            required
-            className="w-full border px-3 py-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Phone</label>
-          <input
-            name="phone"
-            value={shipping.phone}
-            onChange={handleChange}
-            required
-            className="w-full border px-3 py-2 rounded"
-            type="tel"
-          />
-        </div>
+        {['name', 'address', 'city', 'state', 'postalCode', 'phone'].map((field) => (
+          <div key={field}>
+            <label className="block font-medium capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
+            <input
+              name={field}
+              value={shipping[field]}
+              onChange={handleChange}
+              required
+              className="w-full border px-3 py-2 rounded"
+              type={field === 'phone' ? 'tel' : 'text'}
+            />
+          </div>
+        ))}
 
         <button
           type="submit"

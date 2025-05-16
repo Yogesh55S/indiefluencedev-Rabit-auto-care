@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import UserSidebar from '../../../components/UserSidebar';
+import { useRouter } from 'next/navigation';
 import "../../../app/globals.css";
 export default function UserCartPage() {
   const [cartItems, setCartItems] = useState([]);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
-
+const router = useRouter();
   useEffect(() => {
     getUser();
   }, []);
@@ -80,6 +81,7 @@ export default function UserCartPage() {
       await supabase.from('cart_items').delete().eq('user_id', userId);
       fetchCart();
       alert('Order placed successfully!');
+      router.push(`/user/checkout`);
     } else {
       alert('Failed to place order.');
     }
